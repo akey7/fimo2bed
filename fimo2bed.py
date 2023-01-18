@@ -185,6 +185,11 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
 
 
 if __name__ == "__main__":
+    """
+    This code block accepts input from command line arguments, opens 
+    STDIN, STDOUT, and STDERR and invokes fimo_to_bed()
+    """
+
     parser = ArgumentParser(
         description="Converts a fimo tsv to a bed file. Optionally shifts each fragment to the motif and/or centers the fragment."
     )
