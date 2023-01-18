@@ -119,6 +119,37 @@ class Fragment:
 
 
 def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
+    """
+    When reading the source fimo.tsv, it filters out rows with a leading "#"
+    character.
+
+    Parameters
+    ----------
+    file_in
+        A file handle to the input stream for example, sys.stdin.
+
+    file_out
+        A file handle to the output stream for example, sys.stdout.
+
+    log_out
+        A file handle to the loggin stream for example, sys.stderr
+
+    set_name
+        The "set name" which is appended to each sequence name on the
+        output.
+
+    shift
+        If True, shifts the fragment to the motif
+
+    center
+        If non-zero, shifts the fragment to its center +/- the width
+        specified by this parameter.
+
+    Returns
+    -------
+    None
+    """
+    
     unique_fragments = {}
 
     reader = csv.DictReader(
