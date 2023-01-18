@@ -30,7 +30,9 @@ class Fragment:
         self.end = midpoint + width
 
 
-def fimo_to_bed(file_in, file_out, set_name, shift=False, center=0):
+def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
+    unique_fragments = {}
+    
     reader = csv.DictReader(filter(lambda row: not row[0].strip().startswith('#'), file_in), delimiter='\t')
 
     serial = 1
@@ -46,10 +48,12 @@ def fimo_to_bed(file_in, file_out, set_name, shift=False, center=0):
         if center != 0:
             frag.center(center)
 
-        file_out.write(str(frag) + '\n')
+        # file_out.write(str(frag) + '\n')
+    log_out.write(f'total_fragments={serial}\n')
 
     file_in.close()
     file_out.close()
+    log_out.close()
 
 
 if __name__ == '__main__':
@@ -59,4 +63,4 @@ if __name__ == '__main__':
     parser.add_argument('--set', default="default", required=False, type=str)
     args = parser.parse_args()
 
-    fimo_to_bed(sys.stdin, sys.stdout, args.set, shift=args.shift, center=args.center)
+    fimo_to_bed(sys.stdin, sys.stdout, sys.stderr, args.set, shift=args.shift, center=args.center)
