@@ -106,6 +106,96 @@ class Fragment:
 
         return hash(self.sequence_name)
 
+    def __gt__(self, other):
+        """
+        Parameters
+        ----------
+        other: Fragment
+            The other fragment to compare the score to.
+
+        Returns
+        -------
+        bool
+            True if the other.score > self.score
+        """
+        
+        return self.score > other.score
+
+    def __lt__(self, other):
+        """
+        Parameters
+        ----------
+        other: Fragment
+            The other fragment to compare the score to.
+
+        Returns
+        -------
+        bool
+            True if the other.score < self.score
+        """
+        
+        return self.score < other.score
+
+    def __ge__(self, other):
+        """
+        Parameters
+        ----------
+        other: Fragment
+            The other fragment to compare the score to.
+
+        Returns
+        -------
+        bool
+            True if the other.score >= self.score
+        """
+        
+        return self.score >= other.score
+
+    def __le__(self, other):
+        """
+        Parameters
+        ----------
+        other: Fragment
+            The other fragment to compare the score to.
+
+        Returns
+        -------
+        bool
+            True if the other.score <= self.score
+        """
+        
+        return self.score <= other.score
+
+    def __eq__(self, other):
+        """
+        Parameters
+        ----------
+        other: Fragment
+            The other fragment to compare the score to.
+
+        Returns
+        -------
+        bool
+            True if the self.score == other.score
+        """
+
+        return self.score != other.score
+
+    def __ne__(self, other):
+        """
+        Parameters
+        ----------
+        other: Fragment
+            The other fragment to compare the score to.
+
+        Returns
+        -------
+        bool
+            True if the self.score != other.score
+        """
+
+        return self.score != other.score
+
     def __str__(self):
         """
         Formats this fragment to output as a row in a bed file.
@@ -172,7 +262,6 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
             frag.center(center)
 
         unique_fragments[frag] = frag
-        # file_out.write(str(frag) + '\n')
 
     for unique_frag in unique_fragments.values():
         file_out.write(str(unique_frag) + "\n")
