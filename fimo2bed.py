@@ -262,14 +262,14 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
         if center != 0:
             frag.center(center)
 
-        if frag in unique_fragments and unique_fragments[frag] >= frag:
-            log_out.write(f"skip\t{frag.sequence_name}\tduplicate fragment score less than or equal to existing\n")
+        if frag in unique_fragments and unique_fragments[frag] > frag:
+            log_out.write(f"skip\t{frag.sequence_name}\tscore {frag.score} less than existing {unique_fragments[frag].score}\n")
         elif frag in unique_fragments and unique_fragments[frag] < frag:
+            log_out.write(f"replace\t{frag.sequence_name}\tscore {frag.score} greater than existing {unique_fragments[frag].score}\n")
             unique_fragments[frag] = frag
-            log_out.write(f"replace\t{frag.sequence_name}\tnew score greater than existing\n")
         else:
-            unique_fragments[frag] = frag
             log_out.write(f"append\t{frag.sequence_name}\tnew fragment\n")
+            unique_fragments[frag] = frag
 
     for unique_frag in unique_fragments.values():
         file_out.write(str(unique_frag) + "\n")
