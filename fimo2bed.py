@@ -239,7 +239,8 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
     -------
     None
     """
-    
+    log_out.write("action\tfragment\treason\n")
+
     unique_fragments = {}
 
     reader = csv.DictReader(
@@ -261,12 +262,17 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
         if center != 0:
             frag.center(center)
 
-        unique_fragments[frag] = frag
+        if frag in unique_fragments and unique_fragments[frag] >= frag:
+            log_out.write(f"skip\t{frag.sequence_name}\tduplicate fragment score less than or equal to existing\n")
+        elif frag in unique_fragments and unique_fragments[frag] < frag:
+            unique_fragments[frag] = frag
+            log_out.write(f"replace\t{frag.sequence_name}\tnew score greater than existing\n")
+        else:
+            unique_fragments[frag] = frag
+            log_out.write(f"append\t{frag.sequence_name}\tnew fragment\n")
 
     for unique_frag in unique_fragments.values():
         file_out.write(str(unique_frag) + "\n")
-
-    log_out.write(f"total_unique_fragments={len(unique_fragments)}\n")
 
     file_in.close()
     file_out.close()
