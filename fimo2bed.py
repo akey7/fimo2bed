@@ -95,10 +95,31 @@ class Fragment:
         
         return f"{self.chromosome}:{self.start}-{self.end}"
 
+    @property
+    def chromosome_sort_key(self):
+        """
+        Extracts the integer value out of the chromosome string, parses it, and
+        returns it. This creates a sort key that can be sorted numericlly
+        instead of lexigraphically.
+
+        For example, the following strings will both return 17:
+            - "chr17"
+            - "chr17_GL000258v2_alt"
+
+        Returns
+        -------
+        int
+            The chromosome number.
+        """
+
+        trim_left = self.chromosome[3:]
+        return int(trim_left.split("_")[0])
+
     def __hash__(self):
         """
         Returns the hash value of the string of the sequence name to use
-        when inserting this fragment into a dictionary.
+        when inserting this fragment into a dictionary and while comparing
+        it to other fragments.
 
         Returns
         -------
@@ -277,9 +298,9 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
 
     if sort:
         log_out.write("Sorting...\n")
-        s1 = sorted(unique_fragments.values(), key=attrgetter('chromosome'))
-        s2 = sorted(s1, key=attrgetter('start'))
-        final_fragments = sorted(s2, key=attrgetter('end'))
+        final_fragments = sorted(unique_fragments.values(), key=attrgetter('chromosome_sort_key'))
+        # s2 = sorted(s1, key=attrgetter('start'))
+        # final_fragments = sorted(s2, key=attrgetter('end'))
     else:
         log_out.write("Not sorting....\n")
         final_fragments = unique_fragments.values()
