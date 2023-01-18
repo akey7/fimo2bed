@@ -1,6 +1,7 @@
-from argparse import ArgumentParser, BooleanOptionalAction
 import sys
 import csv
+from operator import attrgetter
+from argparse import ArgumentParser, BooleanOptionalAction
 
 
 class Fragment:
@@ -208,7 +209,7 @@ class Fragment:
         return f"{self.chromosome}\t{self.start}\t{self.end}\t{self.sequence_name}|{self.set_name}_{self.serial}\t{self.score}\t{self.strand}"
 
 
-def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
+def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=0):
     """
     When reading the source fimo.tsv, it filters out rows with a leading "#"
     character.
@@ -223,6 +224,9 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
 
     log_out
         A file handle to the loggin stream for example, sys.stderr
+
+    sort
+        True if the output should be sorted.
 
     set_name
         The "set name" which is appended to each sequence name on the
@@ -271,7 +275,16 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
             log_out.write(f"append\t{frag.sequence_name}\tnew fragment\n")
             unique_fragments[frag] = frag
 
-    for unique_frag in unique_fragments.values():
+    if sort:
+        log_out.write("Sorting...\n")
+        s1 = sorted(unique_fragments.values(), key=attrgetter('chromosome'))
+        s2 = sorted(s1, key=attrgetter('start'))
+        final_fragments = sorted(s2, key=attrgetter('end'))
+    else:
+        log_out.write("Not sorting....\n")
+        final_fragments = unique_fragments.values()
+
+    for unique_frag in final_fragments:
         file_out.write(str(unique_frag) + "\n")
 
     file_in.close()
@@ -291,13 +304,15 @@ if __name__ == "__main__":
     parser.add_argument("--center", default=0, required=False, type=int)
     parser.add_argument("--shift", action=BooleanOptionalAction, default=False)
     parser.add_argument("--set", default="default", required=False, type=str)
+    parser.add_argument("--sort", action=BooleanOptionalAction, default=False)
     args = parser.parse_args()
 
     fimo_to_bed(
-        sys.stdin,
-        sys.stdout,
-        sys.stderr,
-        args.set,
+        file_in=sys.stdin,
+        file_out=sys.stdout,
+        log_out=sys.stderr,
+        sort=args.sort,
+        set_name=args.set,
         shift=args.shift,
         center=args.center,
     )
