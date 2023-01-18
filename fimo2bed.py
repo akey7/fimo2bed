@@ -113,7 +113,16 @@ class Fragment:
         """
 
         trim_left = self.chromosome[3:]
-        return int(trim_left.split("_")[0])
+        trim_right = trim_left.split("_")[0]
+
+        if trim_right == 'X':
+            return 100
+        elif trim_right == 'Y':
+            return 101
+        elif trim_right == 'Un':
+            return 99
+        else:
+            return int(trim_right)
 
     def __hash__(self):
         """
