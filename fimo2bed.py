@@ -17,9 +17,6 @@ class Fragment:
         self.start = int(locations[0])
         self.end = int(locations[1])
 
-    def __str__(self):
-        return f"{self.chromosome}\t{self.start}\t{self.end}\t{self.chromosome}:{self.start}-{self.end}|{self.set_name}_{self.serial}\t{self.score}\t{self.strand}"
-
     def shift(self, start_shift=0, end_shift=0):
         self.start += start_shift
         self.end = self.start + end_shift - start_shift - 1
@@ -28,6 +25,13 @@ class Fragment:
         midpoint = (self.start + self.end) // 2
         self.start = midpoint - width
         self.end = midpoint + width
+
+    @property
+    def sequence_name(self):
+        return f'{self.chromosome}:{self.start}-{self.end}'
+
+    def __str__(self):
+        return f"{self.chromosome}\t{self.start}\t{self.end}\t{self.sequence_name}|{self.set_name}_{self.serial}\t{self.score}\t{self.strand}"
 
 
 def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
@@ -48,7 +52,8 @@ def fimo_to_bed(file_in, file_out, log_out, set_name, shift=False, center=0):
         if center != 0:
             frag.center(center)
 
-        # file_out.write(str(frag) + '\n')
+        file_out.write(str(frag) + '\n')
+
     log_out.write(f'total_fragments={serial}\n')
 
     file_in.close()
