@@ -3,9 +3,6 @@ import sys
 import csv
 
 
-# chr1    91369   91487   chr1:91382-91550|carroll_ctcf_mcf7_v45m`2_GTGGCACCAGGTGGCAGCA_cfdna_1   16.2951 +
-
-
 class Fragment:
     """
     This class represents a fragment as found in a fimo.tsv file after motif
