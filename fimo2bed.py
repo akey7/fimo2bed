@@ -297,12 +297,10 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
             unique_fragments[frag] = frag
 
     if sort:
-        log_out.write("Sorting...\n")
-        final_fragments = sorted(unique_fragments.values(), key=attrgetter('chromosome_sort_key'))
-        # s2 = sorted(s1, key=attrgetter('start'))
-        # final_fragments = sorted(s2, key=attrgetter('end'))
+        s1 = sorted(unique_fragments.values(), key=attrgetter('chromosome_sort_key'))
+        s2 = sorted(s1, key=attrgetter('start'))
+        final_fragments = sorted(s2, key=attrgetter('end'))
     else:
-        log_out.write("Not sorting....\n")
         final_fragments = unique_fragments.values()
 
     for unique_frag in final_fragments:
