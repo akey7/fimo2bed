@@ -256,7 +256,8 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
         A file handle to the loggin stream for example, sys.stderr
 
     sort
-        True if the output should be sorted.
+        True if the output should be sorted. If sorted, the output will have
+        its serial numbers reassigned to match the sort order.
 
     set_name
         The "set name" which is appended to each sequence name on the
@@ -307,6 +308,10 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
 
     if sort:
         final_fragments = sorted(unique_fragments.values(), key=attrgetter('chromosome_sort_key', 'start', 'end'))
+        sort_serial = 1
+        for sort_frag in final_fragments:
+            sort_frag.serial = sort_serial
+            sort_serial += 1
     else:
         final_fragments = unique_fragments.values()
 
