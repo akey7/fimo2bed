@@ -1,10 +1,11 @@
 import sys
 import csv
+import tracemalloc
 from operator import attrgetter
 from argparse import ArgumentParser, BooleanOptionalAction
 
 
-class Fragment:
+class Interval:
     """
     This class represents a fragment as found in a fimo.tsv file after motif
     calling. After the called motifs are made into fragments, the methods in
@@ -274,9 +275,9 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
     -------
     None
     """
-    log_out.write("action\tfragment\treason\n")
+    log_out.write("action\tinterval\treason\n")
 
-    unique_fragments = {}
+    unique_intervals = {}
 
     reader = csv.DictReader(
         filter(lambda row: not row[0].strip().startswith("#"), file_in), delimiter="\t"
@@ -284,7 +285,7 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
 
     serial = 1
     for row_in in reader:
-        frag = Fragment(
+        intrvl = Interval(
             row_in["sequence_name"], row_in["score"], row_in["strand"], set_name, serial
         )
         serial += 1
@@ -292,35 +293,31 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
         if shift:
             start_shift = int(row_in["start"])
             end_shift = int(row_in["stop"])
-            frag.shift(start_shift=start_shift, end_shift=end_shift)
+            intrvl.shift(start_shift=start_shift, end_shift=end_shift)
 
         if center != 0:
-            frag.center(center)
+            intrvl.center(center)
 
-        if frag in unique_fragments and unique_fragments[frag] > frag:
-            log_out.write(f"skip\t{frag.sequence_name}\tscore {frag.score} less than existing {unique_fragments[frag].score}\n")
-        elif frag in unique_fragments and unique_fragments[frag] < frag:
-            log_out.write(f"replace\t{frag.sequence_name}\tscore {frag.score} greater than existing {unique_fragments[frag].score}\n")
-            unique_fragments[frag] = frag
+        if intrvl in unique_intervals and unique_intervals[intrvl] > intrvl:
+            log_out.write(f"skip\t{intrvl.sequence_name}\tscore {intrvl.score} less than existing {unique_intervals[intrvl].score}\n")
+        elif intrvl in unique_intervals and unique_intervals[intrvl] < intrvl:
+            log_out.write(f"replace\t{intrvl.sequence_name}\tscore {intrvl.score} greater than existing {unique_intervals[intrvl].score}\n")
+            unique_intervals[intrvl] = intrvl
         else:
-            log_out.write(f"append\t{frag.sequence_name}\tnew fragment\n")
-            unique_fragments[frag] = frag
+            log_out.write(f"append\t{intrvl.sequence_name}\tnew fragment\n")
+            unique_intervals[intrvl] = intrvl
 
     if sort:
-        final_fragments = sorted(unique_fragments.values(), key=attrgetter('chromosome_sort_key', 'start', 'end'))
+        final_intervals = sorted(unique_intervals.values(), key=attrgetter('chromosome_sort_key', 'start', 'end'))
         sort_serial = 1
-        for sort_frag in final_fragments:
-            sort_frag.serial = sort_serial
+        for sort_interval in final_intervals:
+            sort_interval.serial = sort_serial
             sort_serial += 1
     else:
-        final_fragments = unique_fragments.values()
+        final_intervals = unique_intervals.values()
 
-    for unique_frag in final_fragments:
-        file_out.write(str(unique_frag) + "\n")
-
-    file_in.close()
-    file_out.close()
-    log_out.close()
+    for unique_intervals in final_intervals:
+        file_out.write(str(unique_intervals) + "\n")
 
 
 if __name__ == "__main__":
@@ -338,6 +335,7 @@ if __name__ == "__main__":
     parser.add_argument("--sort", action=BooleanOptionalAction, default=False)
     args = parser.parse_args()
 
+    tracemalloc.start()
     fimo_to_bed(
         file_in=sys.stdin,
         file_out=sys.stdout,
@@ -347,3 +345,10 @@ if __name__ == "__main__":
         shift=args.shift,
         center=args.center,
     )
+    sys.stderr.write(f'# Max memory used: {tracemalloc.get_traced_memory()[1]} bytes\n')
+    
+    sys.stdin.close()
+    sys.stdout.close()
+    sys.stderr.close()
+    
+    tracemalloc.stop()
