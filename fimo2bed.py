@@ -1,5 +1,6 @@
 import sys
 import csv
+import tracemalloc
 from operator import attrgetter
 from argparse import ArgumentParser, BooleanOptionalAction
 
@@ -318,10 +319,6 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
     for unique_intervals in final_intervals:
         file_out.write(str(unique_intervals) + "\n")
 
-    file_in.close()
-    file_out.close()
-    log_out.close()
-
 
 if __name__ == "__main__":
     """
@@ -338,6 +335,7 @@ if __name__ == "__main__":
     parser.add_argument("--sort", action=BooleanOptionalAction, default=False)
     args = parser.parse_args()
 
+    tracemalloc.start()
     fimo_to_bed(
         file_in=sys.stdin,
         file_out=sys.stdout,
@@ -347,3 +345,10 @@ if __name__ == "__main__":
         shift=args.shift,
         center=args.center,
     )
+    sys.stderr.write(f'# Max memory used: {tracemalloc.get_traced_memory()[1]} bytes\n')
+    
+    sys.stdin.close()
+    sys.stdout.close()
+    sys.stderr.close()
+    
+    tracemalloc.stop()
