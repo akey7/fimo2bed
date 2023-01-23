@@ -113,9 +113,8 @@ if __name__ == "__main__":
         center=args.center,
     )
     sys.stderr.write(f'# Max memory used: {tracemalloc.get_traced_memory()[1]} bytes\n')
-    
+    tracemalloc.stop()
+
     sys.stdin.close()
     sys.stdout.close()
     sys.stderr.close()
-    
-    tracemalloc.stop()
