@@ -11,7 +11,7 @@ class Interval:
     their scores.
     """
 
-    def __init__(self, fragment_string, score, strand, set_name, _bin, serial):
+    def __init__(self, fragment_string, score, strand, set_name, _bin, fold_change, serial):
         """
         Parameters
         ----------
@@ -32,6 +32,9 @@ class Interval:
 
         _bin: int
             The bin into which this interval falls.
+
+        fold_change: float
+            The fold change as calcualted by macs2.
         
         serial: int
             A serial number to assign to this fragment.
@@ -46,6 +49,7 @@ class Interval:
         self.start = int(locations[0])
         self.end = int(locations[1])
         self._bin = _bin
+        self.fold_change = fold_change
 
     def shift(self, start_shift=0, end_shift=0):
         """
@@ -234,4 +238,4 @@ class Interval:
         str
         """
 
-        return f"{self.chromosome}\t{self.start}\t{self.end}\t{self.sequence_name}|{self.set_name}_{self.serial}\t{self.score}\t{self.strand}\tb{self._bin}"
+        return f"{self.chromosome}\t{self.start}\t{self.end}\tb{self._bin}/{self.fold_change}/{self.sequence_name}|{self.set_name}_{self.serial}\t{self.score}\t{self.strand}"

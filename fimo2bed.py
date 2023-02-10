@@ -53,7 +53,7 @@ def fimo_to_bed(file_in, file_out, log_out, sort, set_name, shift=False, center=
     serial = 1
     for row_in in reader:
         intrvl = Interval(
-            row_in["sequence_name"], row_in["score"], row_in["strand"], set_name, row_in["bin"], serial
+            row_in["sequence_name"], row_in["score"], row_in["strand"], set_name, row_in["bin"], row_in["fold_change"], serial
         )
         serial += 1
 
