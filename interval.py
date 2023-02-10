@@ -11,7 +11,7 @@ class Interval:
     their scores.
     """
 
-    def __init__(self, fragment_string, score, strand, set_name, serial):
+    def __init__(self, fragment_string, score, strand, set_name, _bin, serial):
         """
         Parameters
         ----------
@@ -29,6 +29,9 @@ class Interval:
             The set name to be appended to each fragment sequence name. The sequence
             name itself is based on the fimo.tsv sequence name and is formatted by
             the sequence name property below.
+
+        _bin: int
+            The bin into which this interval falls.
         
         serial: int
             A serial number to assign to this fragment.
@@ -42,6 +45,7 @@ class Interval:
         locations = fragment_string.split(":")[1].split("-")
         self.start = int(locations[0])
         self.end = int(locations[1])
+        self._bin = _bin
 
     def shift(self, start_shift=0, end_shift=0):
         """
@@ -230,4 +234,4 @@ class Interval:
         str
         """
 
-        return f"{self.chromosome}\t{self.start}\t{self.end}\t{self.sequence_name}|{self.set_name}_{self.serial}\t{self.score}\t{self.strand}"
+        return f"{self.chromosome}\t{self.start}\t{self.end}\t{self.sequence_name}|{self.set_name}_{self.serial}\t{self.score}\t{self.strand}\tb{self._bin}"
